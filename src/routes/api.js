@@ -62,11 +62,11 @@ router.post("/api", async (req, res) => {
     !data.datetime ||
     !data.temperature ||
     !data.humidity ||
-    !data.dewPoint ||
-    !data.absoluteHumidity ||
+    !data.dewpoint ||
+    !data.absolutehumidity ||
     !data.pressure ||
     !data.luminosity ||
-    !data.CO2 ||
+    !data.co2 ||
     !data.dust10 ||
     !data.dust25 ||
     !data.dust100 ||
