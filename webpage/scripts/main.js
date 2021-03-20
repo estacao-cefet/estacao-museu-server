@@ -1,4 +1,5 @@
 var socket = io();
+let API_URL = "https://estacao-museu.herokuapp.com/api";
 let cards = [
   {
     title: "Temperatura(C°)",
@@ -39,7 +40,7 @@ let cards = [
 
 let init = async () => {
   createCards();
-  let resp = await fetch(process.env.API_URL, {
+  let resp = await fetch(API_URL, {
     method: "GET",
   });
   let data = await resp.json();
