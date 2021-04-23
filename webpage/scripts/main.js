@@ -13,7 +13,7 @@ let cards = [
     id: "dewpoint",
   },
   {
-    title: "Umidade Absoluta(%)",
+    title: "Umidade Absoluta(g/cm³)",
     icon: "./assets/absolut_humidity.png",
     id: "absolutehumidity",
   },
@@ -40,10 +40,25 @@ let cards = [
 
 let init = async () => {
   createCards();
-  let resp = await fetch(API_URL, {
-    method: "GET",
-  });
-  let data = await resp.json();
+  // let resp = await fetch(API_URL, {
+  //   method: "GET",
+  // });
+  // let data = await resp.json();
+  let data = {
+    absolutehumidity: 17.7,
+    co2: -203,
+    dataid: 1644,
+    datetime: "2021-04-22 15:59:48",
+    device: "museu1",
+    dewpoint: 21,
+    dust10: 1,
+    dust25: 2,
+    dust100: 2,
+    humidity: 53,
+    luminosity: 3588,
+    pressure: 1011.8,
+    temperature: 31.8,
+  };
   updateData(data);
 };
 
