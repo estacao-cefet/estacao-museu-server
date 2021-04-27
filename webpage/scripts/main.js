@@ -57,13 +57,15 @@ let updateData = async (data) => {
   let all_data = document.getElementsByClassName("all_data");
   let date = data.datetime.slice(0, 10);
   let time = data.datetime.slice(11);
-  console.log(data);
+  //console.log(data);
 
   for (let i = 0; i < all_data.length; i++) {
     if (all_data[i].id == "last_update_date") {
       all_data[i].innerText = date;
     } else if (all_data[i].id == "last_update_time") {
       all_data[i].innerText = time;
+    } else if (all_data[i].id == "co2") {
+      all_data[i].innerText = "0";
     } else {
       all_data[i].innerText = data[all_data[i].id];
     }
