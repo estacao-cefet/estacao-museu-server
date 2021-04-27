@@ -8,17 +8,25 @@
     <link href="./plugins/fontawesome/css/all.css" rel="stylesheet" />
     <script src="/socket.io/socket.io.js"></script>
     <script src="./scripts/main.js"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.1.1/chart.js"
+      integrity="sha512-aWx9jeVTj8X49UzUnUHGIlo6rNne1xNsCny/lL0QwUTQK2eilrHXpSk9xbRm4FJ4eLi2XBmnFlRkWPoChSx8bA=="
+      crossorigin="anonymous"
+    ></script>
+    <script src defer="./scripts/chart.js"></script>
 
     <title>Monitoramento Ambiental</title>
   </head>
   <body>
-    <header><h1>Estação Ambiental</h1></header>
+    <header><h1>Estação Ambiental - Museu da República</h1></header>
     <main>
       <div class="card_container" id="card_container">
         <!-- Card -->
       </div>
 
-      <div class="chart"></div>
+      <class class="chart">
+        <canvas id="myChart" width="400" height="400"></canvas>
+      </class>
     </main>
   </body>
 </html>
