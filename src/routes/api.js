@@ -57,26 +57,25 @@ router.get("/api", async (req, res) => {
 
 router.post("/api", async (req, res) => {
   let data = req.body;
-  if (
-    !data.device ||
-    !data.datetime ||
-    !data.temperature ||
-    !data.humidity ||
-    !data.dewpoint ||
-    !data.absolutehumidity ||
-    !data.pressure ||
-    !data.luminosity ||
-    !data.co2 ||
-    !data.dust10 ||
-    !data.dust25 ||
-    !data.dust100 ||
-    !data.dataId
-  ) {
-    res.send("ERROR ON BODY");
-    console.log("Error on body");
-    console.log(data);
-    return;
-  }
+  // if (
+  //   !data.device ||
+  //   !data.datetime ||
+  //   !data.temperature ||
+  //   !data.humidity ||
+  //   !data.dewpoint ||
+  //   !data.absolutehumidity ||
+  //   !data.pressure ||
+  //   !data.luminosity ||
+  //   !data.co2 ||
+  //   !data.dust10 ||
+  //   !data.dust25 ||
+  //   !data.dust100 ||
+  //   !data.dataId
+  // ) {
+  //   res.send("ERROR ON BODY");
+  //   console.log("Error on body");
+  //   return;
+  // }
 
   let db_query_values = Object.values(data);
 
