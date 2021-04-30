@@ -74,6 +74,7 @@ router.post("/api", async (req, res) => {
   ) {
     res.send("ERROR ON BODY");
     console.log("Error on body");
+    console.log(data);
     return;
   }
 

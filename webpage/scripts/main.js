@@ -48,7 +48,7 @@ let init = async () => {
 };
 
 socket.on("update_data", (income) => {
-  let data = JSON.parse(income);
+  //let data = JSON.parse(income);
   console.log(income);
   updateData(income);
 });
