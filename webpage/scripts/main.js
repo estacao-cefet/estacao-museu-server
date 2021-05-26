@@ -1,9 +1,7 @@
 var socket = io();
 var chart;
 let state = { type: "hourly", payload: 0, date: "", data: {}, loading: false };
-//let url = "http://192.168.0.45:3000"; // notebook
-let url = "http://192.168.0.123:3000"; // pc
-
+let url = "https://estacao-museu.herokuapp.com"; 
 let cards = [
   {
     title: "Ultima atualização",
