@@ -6,27 +6,53 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="styles/all.css" />
     <link href="./plugins/fontawesome/css/all.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.2.0/chart.min.js"></script>
+
     <script src="/socket.io/socket.io.js"></script>
     <script src="./scripts/main.js"></script>
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.1.1/chart.js"
-      integrity="sha512-aWx9jeVTj8X49UzUnUHGIlo6rNne1xNsCny/lL0QwUTQK2eilrHXpSk9xbRm4FJ4eLi2XBmnFlRkWPoChSx8bA=="
-      crossorigin="anonymous"
-    ></script>
-    <script src defer="./scripts/chart.js"></script>
 
     <title>Monitoramento Ambiental</title>
   </head>
   <body>
-    <header><h1>Estação Ambiental - Museu da República</h1></header>
+    <header>
+      <h1>CEFET/RJ - Meteoro / Eng. Auto - Museu da República</h1>
+    </header>
     <main>
       <div class="card_container" id="card_container">
         <!-- Card -->
       </div>
 
-      <class class="chart">
-        <canvas id="myChart" width="400" height="400"></canvas>
-      </class>
+      <div class="chart">
+        <div class="chart_filters">
+          <button class="chart_button" id="5-min">
+            <p>05-min</p>
+          </button>
+          <button class="chart_button" id="10-min">
+            <p>10-min</p>
+          </button>
+          <button class="chart_button" id="15-min">
+            <p>15-min</p>
+          </button>
+          <button class="chart_button" id="30-min">
+            <p>30-min</p>
+          </button>
+          <button class="chart_button" id="hourly">
+            <p>Horário</p>
+          </button>
+          <button class="chart_button" id="daily"><p>Diário</p></button>
+          <button class="chart_button" id="monthly"><p>Mensal</p></button>
+          <input type="date" id="date_input" />
+          <button id="download"><p>Download data</p></button>
+          <div class="loader" id="loader"></div>
+        </div>
+        <canvas
+          id="myChart"
+          width="110"
+          height="50"
+          style="width: 110px; height: 50px"
+        >
+        </canvas>
+      </div>
     </main>
   </body>
 </html>

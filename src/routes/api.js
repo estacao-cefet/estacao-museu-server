@@ -8,23 +8,35 @@ const client = new Client({
     rejectUnauthorized: false,
   },
 });
-client.connect();
+var ans = {
+  datetime: [],
+  temperature: [],
+  humidity: [],
+  luminosity: [],
+  dust10: [],
+  dust25: [],
+  dust100: [],
+};
+try {
+  client.connect();
+  console.log("Successfully connected");
+} catch (e) {
+  console.log(e);
+}
+
 pg.types.setTypeParser(1114, (str) => str); // forcing timestamp to be str
 
 const router = express.Router();
 
-router.get("/test", (req, res) => {
-  res.send("fodase");
-  return;
-});
 router.get("/api", async (req, res) => {
   //  date_to , date_from
-  //  GET /something?date_to=DATE&date_from=DATE&scale=compare/days/months/years
-  let date_to = req.query.date_to;
-  let date_from = req.query.date_from;
-  let scale = req.query.scale;
+  //  GET /something?date_to=DATE&date_from=DATE&type=hours/days/months&payload=value
+  //  type: single ; hourly ; daily ; monthly
 
-  if (!date_to || !date_from || !scale) {
+  let type = req.query.type;
+
+  // First update
+  if (type == "single") {
     try {
       const resp = await client.query(
         "SELECT * FROM estacao ORDER BY datetime DESC LIMIT 1"
@@ -38,45 +50,120 @@ router.get("/api", async (req, res) => {
     }
   }
 
-  try {
-    //SELECT * FROM estacao WHERE datetime BETWEEN '2021-03-11 00:00:00' AND '2021-03-12 23:59:59'
-    const resp = await client.query(
-      "SELECT * FROM estacao WHERE datetime BETWEEN '$1' AND '$2'",
-      [date_to, date_from]
-    );
-    console.log(resp);
-    res.send(resp.rows);
-    client.end();
-    return;
-  } catch (err) {
-    res.send(err.stack);
-    client.end();
-    return;
+  // Date variables used above
+  let date = req.query.date_from;
+  let date_from;
+  let date_to;
+
+  if (type == "minutly") {
+    let minutes_interval = parseInt(req.query.payload);
+    let minutes_in_a_day = 1440;
+    let interval = minutes_in_a_day / minutes_interval;
+    let m = 0;
+    let h = 0;
+    date = date.slice(0, 10);
+    for (let i = 0; i < interval; i++) {
+      m += minutes_interval;
+      if (m == 60) {
+        h++;
+        date_from =
+          date +
+          ` ${numberFormater(h - 1)}:${numberFormater(
+            m - minutes_interval
+          )}:00`;
+
+        if (h == 24) h = 0;
+        date_to = date + ` ${numberFormater(h)}:${numberFormater(0)}:00`;
+        m = 0;
+      } else {
+        date_from =
+          date +
+          ` ${numberFormater(h)}:${numberFormater(m - minutes_interval)}:00`;
+        date_to = date + ` ${numberFormater(h)}:${numberFormater(m)}:00`;
+      }
+
+      await requestAvg(date_from, date_to, date_to);
+    }
+    return res.send(ans);
+  }
+
+  if (type == "hourly") {
+    try {
+      for (let i = 0; i < 24; i++) {
+        if (i < 10) {
+          date_from = `${date} 0${i}:00:00`;
+          date_to = `${date} 0${i}:59:59`;
+        } else {
+          date_from = `${date} ${i}:00:00`;
+          date_to = `${date} ${i}:59:59`;
+        }
+
+        await requestAvg(date_from, date_to, date_from);
+      }
+
+      res.send(ans);
+      resetAns();
+      return;
+    } catch (err) {
+      res.send(err.stack);
+      console.log(err.stack);
+      return;
+    }
+  }
+
+  let days_per_month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  if (type == "daily") {
+    let current_month = date.slice(5, 7);
+    let current_month_int = parseInt(current_month);
+    let current_year = date.slice(0, 4);
+
+    for (let i = 1; i < days_per_month[current_month_int - 1] + 1; i++) {
+      if (i < 10) {
+        date_from = current_year + `-${current_month}-0${i}` + " 00:00:00";
+        date_to = current_year + `-${current_month}-0${i}` + " 23:59:59";
+      } else {
+        date_from = current_year + `-${current_month}-${i}` + " 00:00:00";
+        date_to = current_year + `-${current_month}-${i}` + " 23:59:59";
+      }
+
+      await requestAvg(date_from, date_to, date_from.slice(0, 10));
+    }
+
+    res.send(ans);
+    resetAns();
+  }
+
+  if (type == "monthly") {
+    try {
+      let current_year = date.slice(0, 4);
+      for (let i = 1; i < 12; i++) {
+        if (i < 10) {
+          date_from = current_year + `-0${i}-` + "01" + " 00:00:00";
+          date_to =
+            current_year + `-0${i}-` + days_per_month[i - 1] + " 23:59:59";
+        } else {
+          date_from = current_year + `-${i}-` + "01" + " 00:00:00";
+          date_to =
+            current_year + `-${i}-` + days_per_month[i - 1] + " 23:59:59";
+        }
+
+        await requestAvg(date_from, date_to, date_from.slice(0, 7));
+      }
+
+      res.send(ans);
+      resetAns();
+      return;
+    } catch (err) {
+      res.send(err.stack);
+      console.log(err.stack);
+
+      return;
+    }
   }
 });
 
 router.post("/api", async (req, res) => {
   let data = req.body;
-  // if (
-  //   !data.device ||
-  //   !data.datetime ||
-  //   !data.temperature ||
-  //   !data.humidity ||
-  //   !data.dewpoint ||
-  //   !data.absolutehumidity ||
-  //   !data.pressure ||
-  //   !data.luminosity ||
-  //   !data.co2 ||
-  //   !data.dust10 ||
-  //   !data.dust25 ||
-  //   !data.dust100 ||
-  //   !data.dataId
-  // ) {
-  //   res.send("ERROR ON BODY");
-  //   console.log("Error on body");
-  //   return;
-  // }
-
   let db_query_values = Object.values(data);
 
   try {
@@ -94,4 +181,49 @@ router.post("/api", async (req, res) => {
   }
 });
 
+async function requestAvg(date_from, date_to, date_control) {
+  try {
+    ans["datetime"].push(date_control);
+    const resp = await client.query(
+      `SELECT  AVG(temperature) AS temperature, AVG(humidity) AS humidity ,AVG(luminosity) AS luminosity, AVG(dust10) AS dust10, AVG(dust25) AS dust25, AVG(dust100) AS dust100 FROM estacao WHERE datetime BETWEEN '${date_from}' AND '${date_to}'`
+    );
+
+    resp.rows.forEach((data) => {
+      for (prop in data) {
+        // Verifying if its a number in order to round it
+        let inp = data[prop];
+        if (inp === null || isNaN(parseFloat(inp.toString()))) {
+          ans[prop].push(inp);
+        } else {
+          ans[prop].push(inp.toFixed(2));
+        }
+      }
+    });
+    return;
+  } catch (err) {
+    console.log(err);
+    return;
+  }
+}
+
+function resetAns() {
+  ans = {
+    datetime: [],
+    temperature: [],
+    humidity: [],
+    luminosity: [],
+    dust10: [],
+    dust25: [],
+    dust100: [],
+  };
+  return;
+}
+
+function numberFormater(n) {
+  if (n < 10) {
+    return `0${n}`;
+  } else {
+    return `${n}`;
+  }
+}
 module.exports = router;
